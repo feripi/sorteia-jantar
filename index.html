@@ -1,0 +1,1075 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="theme-color" content="#7c3aed" />
+  <title>Sorteia Jantar 🍽️</title>
+
+  <!-- Fontes (opcional: se estiver offline, cai no fallback do sistema automaticamente) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet" />
+
+  <style>
+/* ===================================================================
+   Sorteia Jantar — CSS completo e autossuficiente (sem Tailwind/CDN).
+   Funciona offline e abrindo o index.html com dois cliques.
+   =================================================================== */
+
+:root {
+  --roxo: #7c3aed;
+  --roxo-escuro: #5b21b6;
+  --laranja: #fb7185;
+  --amarelo: #fbbf24;
+  --fonte-display: "Baloo 2", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --fonte-body: "Nunito", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  min-height: 100dvh;
+}
+
+body {
+  font-family: var(--fonte-body);
+  color: #fff;
+  -webkit-font-smoothing: antialiased;
+}
+
+.hidden { display: none !important; }
+
+/* ---------- Fundo animado com gradiente quente ---------- */
+.app-bg {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  background: linear-gradient(135deg, #7c3aed 0%, #db2777 40%, #f97316 80%, #fbbf24 100%);
+  background-size: 300% 300%;
+  animation: gradient-flow 14s ease infinite;
+}
+@keyframes gradient-flow {
+  0%   { background-position: 0% 50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* ---------- Layout base ---------- */
+.app {
+  position: relative;
+  z-index: 10;
+  min-height: 100dvh;
+  width: 100%;
+  max-width: 28rem;
+  margin: 0 auto;
+  padding: 24px 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.topbar {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+}
+.logo {
+  font-family: var(--fonte-display);
+  font-size: 1.5rem;
+  font-weight: 800;
+  margin: 0;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.15);
+}
+
+/* telas ocupam o espaço restante */
+.screen {
+  width: 100%;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+.screen-centro {
+  align-items: center;
+  justify-content: center;
+}
+
+/* ---------- Botões genéricos ---------- */
+.btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: none;
+  border-radius: 9999px;
+  background: rgba(255,255,255,0.2);
+  backdrop-filter: blur(6px);
+  color: #fff;
+  padding: 8px 16px;
+  font-family: var(--fonte-body);
+  font-size: 0.875rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.15s ease, transform 0.1s ease;
+}
+.btn-ghost:hover  { background: rgba(255,255,255,0.3); }
+.btn-ghost:active { transform: scale(0.95); }
+
+.btn-primary {
+  margin-top: 16px;
+  width: 100%;
+  border: none;
+  border-radius: 18px;
+  background: #fff;
+  color: var(--roxo);
+  font-family: var(--fonte-display);
+  font-size: 1.125rem;
+  font-weight: 800;
+  padding: 16px;
+  cursor: pointer;
+  box-shadow: 0 12px 25px rgba(0,0,0,0.2);
+  transition: transform 0.1s ease, opacity 0.15s ease;
+}
+.btn-primary:active { transform: scale(0.96); }
+.btn-primary:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.btn-voltar {
+  border: none;
+  border-radius: 9999px;
+  background: rgba(255,255,255,0.2);
+  backdrop-filter: blur(6px);
+  color: #fff;
+  width: 40px; height: 40px;
+  font-size: 1.25rem;
+  cursor: pointer;
+  transition: background 0.15s ease, transform 0.1s ease;
+}
+.btn-voltar:hover  { background: rgba(255,255,255,0.3); }
+.btn-voltar:active { transform: scale(0.95); }
+
+/* ---------- Onboarding ---------- */
+.onb-hero { text-align: center; margin-bottom: 20px; }
+.onb-emoji {
+  font-size: 3.75rem;
+  margin-bottom: 12px;
+  animation: bounce-slow 2.4s ease-in-out infinite;
+}
+@keyframes bounce-slow {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-12px); }
+}
+.titulo {
+  font-family: var(--fonte-display);
+  font-size: 1.875rem;
+  font-weight: 800;
+  line-height: 1.15;
+  margin: 0;
+}
+.titulo-sm {
+  font-family: var(--fonte-display);
+  font-size: 1.5rem;
+  font-weight: 800;
+  margin: 0;
+}
+.subtitulo {
+  margin: 8px 0 0;
+  font-weight: 600;
+  color: rgba(255,255,255,0.85);
+}
+
+.sub-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+/* ---------- Linha de adicionar ---------- */
+.add-row { display: flex; gap: 8px; margin-bottom: 16px; }
+.input {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  border-radius: 16px;
+  padding: 12px 16px;
+  font-family: var(--fonte-body);
+  font-size: 1rem;
+  font-weight: 700;
+  color: #1f2937;
+  outline: 2px solid transparent;
+  box-shadow: 0 8px 18px rgba(0,0,0,0.15);
+  transition: outline-color 0.15s ease;
+}
+.input::placeholder { color: #9ca3af; font-weight: 600; }
+.input:focus { outline-color: #fff; }
+.btn-add {
+  border: none;
+  border-radius: 16px;
+  background: var(--amarelo);
+  color: var(--roxo-escuro);
+  font-family: var(--fonte-body);
+  font-weight: 800;
+  padding: 0 20px;
+  cursor: pointer;
+  box-shadow: 0 8px 18px rgba(0,0,0,0.15);
+  transition: transform 0.1s ease;
+}
+.btn-add:active { transform: scale(0.95); }
+
+/* ---------- Sugestões ---------- */
+.sugestoes-wrap { margin-bottom: 16px; }
+.sugestoes-label {
+  display: block;
+  color: rgba(255,255,255,0.7);
+  font-size: 0.875rem;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+.sugestoes { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip {
+  border: 2px solid rgba(255,255,255,0.5);
+  background: rgba(255,255,255,0.1);
+  color: #fff;
+  border-radius: 9999px;
+  padding: 6px 14px;
+  font-family: var(--fonte-body);
+  font-weight: 700;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: background 0.15s ease, transform 0.1s ease;
+}
+.chip:hover  { background: rgba(255,255,255,0.25); }
+.chip:active { transform: scale(0.93); }
+.chip.usada { opacity: 0.35; pointer-events: none; }
+
+/* ---------- Listas de pratos ---------- */
+.lista {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.item-prato {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: rgba(255,255,255,0.16);
+  backdrop-filter: blur(6px);
+  border-radius: 16px;
+  padding: 12px 14px;
+  animation: entra-item 0.25s ease;
+}
+@keyframes entra-item {
+  from { opacity: 0; transform: translateX(-12px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+.item-prato .emoji { font-size: 24px; }
+.item-prato .nome  { flex: 1; font-weight: 700; }
+
+/* botão de marcar como saudável 🌱 */
+.item-prato .saude {
+  border: none;
+  background: rgba(0,0,0,0.18);
+  width: 32px; height: 32px;
+  border-radius: 9999px;
+  cursor: pointer;
+  font-size: 15px;
+  filter: grayscale(1);
+  opacity: 0.55;
+  transition: all 0.15s ease;
+}
+.item-prato .saude:active { transform: scale(0.9); }
+.item-prato .saude.ativa {
+  filter: none;
+  opacity: 1;
+  background: rgba(52, 211, 153, 0.85);
+  box-shadow: 0 0 0 2px rgba(255,255,255,0.35);
+}
+
+.item-prato .del {
+  border: none;
+  background: rgba(0,0,0,0.2);
+  color: #fff;
+  width: 32px; height: 32px;
+  border-radius: 9999px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: background 0.15s ease, transform 0.1s ease;
+}
+.item-prato .del:hover  { background: rgba(220, 38, 38, 0.85); }
+.item-prato .del:active { transform: scale(0.9); }
+
+/* linhas do histórico */
+.item-hist .nome { flex: 1; }
+.item-hist .badge-saude {
+  font-size: 16px;
+  background: rgba(52, 211, 153, 0.85);
+  border-radius: 9999px;
+  padding: 2px 6px;
+}
+.item-hist .hist-data {
+  font-size: 0.8rem;
+  font-weight: 700;
+  opacity: 0.75;
+  text-transform: capitalize;
+  white-space: nowrap;
+}
+.hist-vazio {
+  color: rgba(255,255,255,0.8);
+  font-weight: 600;
+  margin-top: 16px;
+}
+.btn-limpar {
+  margin-top: 16px;
+  width: 100%;
+  border: none;
+  border-radius: 18px;
+  background: rgba(255,255,255,0.15);
+  color: #fff;
+  font-family: var(--fonte-display);
+  font-weight: 700;
+  font-size: 1rem;
+  padding: 12px;
+  cursor: pointer;
+  transition: background 0.15s ease, transform 0.1s ease;
+}
+.btn-limpar:hover  { background: rgba(239, 68, 68, 0.5); }
+.btn-limpar:active { transform: scale(0.96); }
+
+/* ---------- Notas do sorteio ---------- */
+.nota-semana {
+  margin-bottom: 20px;
+  border-radius: 9999px;
+  background: rgba(52, 211, 153, 0.25);
+  border: 1px solid rgba(167, 243, 208, 0.5);
+  padding: 8px 16px;
+  font-size: 0.875rem;
+  font-weight: 700;
+  text-align: center;
+}
+.contador {
+  margin: 20px 0 0;
+  color: rgba(255,255,255,0.7);
+  font-size: 0.875rem;
+  font-weight: 700;
+}
+.nota-ultimo {
+  margin: 4px 0 0;
+  color: rgba(255,255,255,0.7);
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-align: center;
+}
+
+/* ---------- Roleta / display do sorteio ---------- */
+.roleta-container {
+  position: relative;
+  width: 100%;
+  margin-bottom: 28px;
+}
+.roleta-frame {
+  position: relative;
+  border-radius: 28px;
+  padding: 6px;
+  background: linear-gradient(135deg, rgba(255,255,255,0.5), rgba(255,255,255,0.1));
+  box-shadow: 0 20px 45px rgba(0,0,0,0.25);
+}
+.roleta-display {
+  min-height: 160px;
+  border-radius: 22px;
+  background: rgba(30, 10, 60, 0.55);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 20px;
+  overflow: hidden;
+}
+.roleta-idle {
+  color: rgba(255,255,255,0.7);
+  font-family: var(--fonte-display);
+  font-size: 1.5rem;
+}
+.prato-atual {
+  font-family: var(--fonte-display);
+  font-weight: 800;
+  font-size: clamp(1.8rem, 8vw, 2.8rem);
+  line-height: 1.1;
+  color: #fff;
+}
+.roleta-girando .prato-atual { animation: pisca 0.09s linear infinite; }
+@keyframes pisca {
+  0%   { opacity: 0.3; transform: translateY(-8px) scale(0.96); }
+  100% { opacity: 1;   transform: translateY(0)     scale(1); }
+}
+.roleta-vencedor {
+  animation: revela 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+  background: rgba(251, 191, 36, 0.25) !important;
+}
+@keyframes revela {
+  0%   { transform: scale(0.5) rotate(-6deg); opacity: 0; }
+  60%  { transform: scale(1.12) rotate(3deg); }
+  100% { transform: scale(1) rotate(0); opacity: 1; }
+}
+.roleta-pointer {
+  position: absolute;
+  top: -14px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 28px;
+  filter: drop-shadow(0 4px 4px rgba(0,0,0,0.3));
+}
+
+/* ---------- Botão principal de sortear ---------- */
+.btn-sortear {
+  width: 190px;
+  height: 190px;
+  border-radius: 9999px;
+  border: none;
+  cursor: pointer;
+  font-family: var(--fonte-display);
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--roxo-escuro);
+  background: radial-gradient(circle at 35% 30%, #fff 0%, #fde68a 55%, #fbbf24 100%);
+  box-shadow: 0 0 0 8px rgba(255,255,255,0.25), 0 18px 40px rgba(0,0,0,0.35);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  animation: pulse-glow 2.2s ease-in-out infinite;
+}
+.btn-sortear:hover  { transform: scale(1.05); }
+.btn-sortear:active { transform: scale(0.94); }
+.btn-sortear:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  animation: none;
+}
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 0 8px rgba(255,255,255,0.25), 0 18px 40px rgba(0,0,0,0.35); }
+  50%      { box-shadow: 0 0 0 16px rgba(255,255,255,0.12), 0 18px 40px rgba(0,0,0,0.35); }
+}
+
+/* ---------- Confetes ---------- */
+.confete {
+  pointer-events: none;
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  overflow: hidden;
+}
+.confete-peca {
+  position: absolute;
+  top: -20px;
+  font-size: 20px;
+  animation: cair linear forwards;
+}
+@keyframes cair {
+  to { transform: translateY(110vh) rotate(720deg); opacity: 0.9; }
+}
+
+/* respeita quem prefere menos movimento */
+@media (prefers-reduced-motion: reduce) {
+  .app-bg, .onb-emoji, .btn-sortear { animation: none; }
+}
+
+  </style>
+</head>
+
+<body>
+  <!-- Fundo animado quente -->
+  <div class="app-bg"></div>
+
+  <main class="app">
+
+    <!-- Cabeçalho -->
+    <header class="topbar">
+      <h1 class="logo">🍽️ Sorteia Jantar</h1>
+      <button id="btn-editar" class="btn-ghost hidden">✏️ Editar</button>
+    </header>
+
+    <!-- ======================= TELA: ONBOARDING ======================= -->
+    <section id="tela-onboarding" class="screen hidden">
+      <div class="onb-hero">
+        <div class="onb-emoji">🤔🍕</div>
+        <h2 class="titulo">O que tem na sua<br>geladeira?</h2>
+        <p class="subtitulo">Monte sua lista de pratos favoritos. A gente sorteia o resto! 😋</p>
+      </div>
+
+      <form id="form-onboarding" class="add-row">
+        <input id="input-onboarding" type="text" autocomplete="off" maxlength="40"
+          placeholder="Ex: Pizza, Strogonoff..." class="input" />
+        <button type="submit" class="btn-add">+ Add</button>
+      </form>
+
+      <div class="sugestoes-wrap">
+        <span class="sugestoes-label">Sugestões rápidas:</span>
+        <div id="sugestoes" class="sugestoes"></div>
+      </div>
+
+      <ul id="lista-onboarding" class="lista"></ul>
+
+      <button id="btn-comecar" class="btn-primary">Bora sortear! 🎉</button>
+    </section>
+
+    <!-- ======================= TELA: SORTEIO ======================= -->
+    <section id="tela-sorteio" class="screen screen-centro hidden">
+      <div id="nota-semana" class="nota-semana hidden">
+        🥗 Dia de semana — preferência pra comidas saudáveis!
+      </div>
+
+      <div class="roleta-container">
+        <div class="roleta-frame">
+          <div id="roleta-display" class="roleta-display">
+            <span class="roleta-idle">Pronto para o sorteio?</span>
+          </div>
+        </div>
+        <div class="roleta-pointer">👇</div>
+      </div>
+
+      <div id="confete" class="confete hidden"></div>
+
+      <button id="btn-sortear" class="btn-sortear">Sortear Jantar!</button>
+
+      <p id="contador-pratos" class="contador"></p>
+      <p id="nota-ultimo" class="nota-ultimo hidden"></p>
+
+      <button id="btn-historico" class="btn-ghost">📜 Ver histórico</button>
+    </section>
+
+    <!-- ======================= TELA: EDITAR LISTA ======================= -->
+    <section id="tela-editar" class="screen hidden">
+      <div class="sub-header">
+        <button id="btn-voltar" class="btn-voltar">←</button>
+        <h2 class="titulo-sm">Meus pratos</h2>
+      </div>
+
+      <form id="form-editar" class="add-row">
+        <input id="input-editar" type="text" autocomplete="off" maxlength="40"
+          placeholder="Adicionar prato..." class="input" />
+        <button type="submit" class="btn-add">+ Add</button>
+      </form>
+
+      <ul id="lista-editar" class="lista"></ul>
+
+      <button id="btn-salvar" class="btn-primary">Salvar e voltar ✅</button>
+    </section>
+
+    <!-- ======================= TELA: HISTÓRICO ======================= -->
+    <section id="tela-historico" class="screen hidden">
+      <div class="sub-header">
+        <button id="btn-voltar-hist" class="btn-voltar">←</button>
+        <h2 class="titulo-sm">Já foi sorteado 📜</h2>
+      </div>
+
+      <p id="hist-vazio" class="hist-vazio hidden">
+        Nenhum jantar sorteado ainda. Bora sortear o primeiro! 🎲
+      </p>
+
+      <ul id="lista-historico" class="lista"></ul>
+
+      <button id="btn-limpar-hist" class="btn-limpar hidden">Limpar histórico 🗑️</button>
+    </section>
+
+  </main>
+
+  <script>
+/* ===================================================================
+   Sorteia Jantar — lógica do app (vanilla JS, sem dependências)
+   =================================================================== */
+
+const STORAGE_KEY = "sorteia-jantar:pratos";
+const HIST_KEY = "sorteia-jantar:historico";
+const MAX_HISTORICO = 60;
+
+/* Estado em memória. É a fonte da verdade; o LocalStorage é o backup. */
+let pratos = [];        // lista oficial: [{ nome, saudavel }]
+let rascunho = [];      // lista sendo editada (onboarding / edição)
+let historico = [];     // sorteios passados: [{ nome, saudavel, data }] (mais recente primeiro)
+
+/* ---------- Emojis de comida ---------- */
+/* Tenta casar por palavra-chave; se não achar, usa um emoji genérico fixo
+   por nome (determinístico, pra não trocar toda hora). */
+const MAPA_EMOJI = {
+  pizza: "🍕", hambur: "🍔", burger: "🍔", salada: "🥗", sushi: "🍣",
+  taco: "🌮", burrito: "🌯", massa: "🍝", macarr: "🍝", espaguete: "🍝",
+  strogonoff: "🍛", estrogonofe: "🍛", curry: "🍛", arroz: "🍚",
+  sopa: "🍲", caldo: "🍲", feijoada: "🍲", frango: "🍗", galinha: "🍗",
+  carne: "🥩", bife: "🥩", churrasco: "🍖", costela: "🍖",
+  peixe: "🐟", camarao: "🦐", camarão: "🦐", batata: "🍟",
+  ovo: "🍳", omelete: "🍳", panqueca: "🥞", sanduiche: "🥪", sanduíche: "🥪",
+  hotdog: "🌭", cachorro: "🌭", pao: "🥖", pão: "🥖", queijo: "🧀",
+  lasanha: "🍝", risoto: "🍚", tapioca: "🫓", crepe: "🥞",
+  yakisoba: "🍜", lamen: "🍜", ramen: "🍜", macarronada: "🍝",
+  torta: "🥧", bolo: "🍰", doce: "🍰", sorvete: "🍨", sobremesa: "🍮",
+  fruta: "🍎", esfiha: "🥟", pastel: "🥟", coxinha: "🍢",
+  salmao: "🐟", salmão: "🐟", atum: "🐟", tilapia: "🐟", tilápia: "🐟",
+  wrap: "🌯", legume: "🥦", brocolis: "🥦", brócolis: "🥦",
+};
+const EMOJI_GENERICOS = ["🍽️", "🥘", "🍱", "🥙", "🧆", "🍢", "🫕"];
+
+function emojiPara(nome) {
+  const n = nome.toLowerCase();
+  for (const chave in MAPA_EMOJI) {
+    if (n.includes(chave)) return MAPA_EMOJI[chave];
+  }
+  // hash simples e estável do nome -> índice
+  let soma = 0;
+  for (let i = 0; i < n.length; i++) soma += n.charCodeAt(i);
+  return EMOJI_GENERICOS[soma % EMOJI_GENERICOS.length];
+}
+
+/* ---------- Detecção de prato saudável ---------- */
+const SAUDAVEL_KEYWORDS = [
+  "salada", "peixe", "frango", "grelhad", "cozid", "assad", "legume", "verdura",
+  "fruta", "sopa", "caldo verde", "integral", "quinoa", "grão", "grao", "omelete",
+  "ovo", "atum", "salmao", "salmão", "tilapia", "tilápia", "brócolis", "brocolis",
+  "couve", "abobrinha", "berinjela", "wrap", "light", "vegano", "vegetarian",
+  "sopao", "sopão", "escondidinho de", "purê de legume",
+];
+
+function detectarSaudavel(nome) {
+  const n = nome.toLowerCase();
+  return SAUDAVEL_KEYWORDS.some((k) => n.includes(k));
+}
+
+/* ---------- Persistência ---------- */
+function normalizarPrato(item) {
+  // migração: versões antigas salvavam apenas strings
+  if (typeof item === "string") return { nome: item, saudavel: detectarSaudavel(item) };
+  if (item && typeof item.nome === "string") return { nome: item.nome, saudavel: !!item.saudavel };
+  return null;
+}
+
+function carregar() {
+  try {
+    const dados = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
+    if (!Array.isArray(dados)) return [];
+    return dados.map(normalizarPrato).filter(Boolean);
+  } catch {
+    return [];
+  }
+}
+function salvar() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(pratos));
+}
+
+function carregarHistorico() {
+  try {
+    const dados = JSON.parse(localStorage.getItem(HIST_KEY) || "[]");
+    return Array.isArray(dados) ? dados.filter((h) => h && typeof h.nome === "string") : [];
+  } catch {
+    return [];
+  }
+}
+function salvarHistorico() {
+  localStorage.setItem(HIST_KEY, JSON.stringify(historico));
+}
+
+/* ---------- Navegação entre telas ---------- */
+const telas = {
+  onboarding: document.getElementById("tela-onboarding"),
+  sorteio: document.getElementById("tela-sorteio"),
+  editar: document.getElementById("tela-editar"),
+  historico: document.getElementById("tela-historico"),
+};
+const btnEditar = document.getElementById("btn-editar");
+
+function mostrarTela(nome) {
+  Object.entries(telas).forEach(([k, el]) => {
+    el.classList.toggle("hidden", k !== nome);
+    el.classList.toggle("flex", k === nome);
+  });
+  // botão "Editar" só aparece na tela de sorteio
+  btnEditar.classList.toggle("hidden", nome !== "sorteio");
+  btnEditar.classList.toggle("flex", nome === "sorteio");
+}
+
+/* ---------- Helpers compartilhados de lista ---------- */
+function adicionarRascunho(nomeBruto, rerender) {
+  const nome = nomeBruto.trim();
+  if (!nome) return;
+  const existe = rascunho.some((p) => p.nome.toLowerCase() === nome.toLowerCase());
+  if (existe) return; // evita duplicados
+  rascunho.push({ nome, saudavel: detectarSaudavel(nome) });
+  rerender();
+}
+
+function criarItem(prato, indice, rerender) {
+  const li = document.createElement("li");
+  li.className = "item-prato";
+  li.innerHTML = `
+    <span class="emoji"></span>
+    <span class="nome"></span>
+    <button class="saude" title="Marcar como saudável">🌱</button>
+    <button class="del" aria-label="Remover">✕</button>
+  `;
+  li.querySelector(".emoji").textContent = emojiPara(prato.nome);
+  li.querySelector(".nome").textContent = prato.nome; // textContent = seguro contra HTML
+
+  const btnSaude = li.querySelector(".saude");
+  btnSaude.classList.toggle("ativa", !!prato.saudavel);
+  btnSaude.setAttribute("aria-pressed", String(!!prato.saudavel));
+  btnSaude.addEventListener("click", () => {
+    rascunho[indice].saudavel = !rascunho[indice].saudavel;
+    rerender();
+  });
+
+  li.querySelector(".del").addEventListener("click", () => {
+    rascunho.splice(indice, 1);
+    rerender();
+  });
+  return li;
+}
+
+function clonarLista(lista) {
+  return lista.map((p) => ({ ...p }));
+}
+
+/* =================================================================
+   ONBOARDING
+   ================================================================= */
+const SUGESTOES = ["Pizza", "Hambúrguer", "Salada", "Strogonoff", "Sushi", "Frango grelhado", "Sopa de legumes", "Tacos"];
+
+const formOnb = document.getElementById("form-onboarding");
+const inputOnb = document.getElementById("input-onboarding");
+const listaOnb = document.getElementById("lista-onboarding");
+const btnComecar = document.getElementById("btn-comecar");
+const boxSugestoes = document.getElementById("sugestoes");
+
+function renderSugestoes() {
+  boxSugestoes.innerHTML = "";
+  SUGESTOES.forEach((s) => {
+    const chip = document.createElement("button");
+    chip.type = "button";
+    chip.className = "chip";
+    chip.textContent = `${emojiPara(s)} ${s}`;
+    const jaTem = rascunho.some((p) => p.nome.toLowerCase() === s.toLowerCase());
+    if (jaTem) chip.classList.add("usada");
+    chip.addEventListener("click", () => adicionarRascunho(s, renderOnboarding));
+    boxSugestoes.appendChild(chip);
+  });
+}
+
+function renderOnboarding() {
+  listaOnb.innerHTML = "";
+  rascunho.forEach((prato, i) => {
+    listaOnb.appendChild(criarItem(prato, i, renderOnboarding));
+  });
+  btnComecar.disabled = rascunho.length === 0;
+  renderSugestoes();
+}
+
+formOnb.addEventListener("submit", (e) => {
+  e.preventDefault();
+  adicionarRascunho(inputOnb.value, renderOnboarding);
+  inputOnb.value = "";
+  inputOnb.focus();
+});
+
+btnComecar.addEventListener("click", () => {
+  pratos = clonarLista(rascunho);
+  salvar();
+  irParaSorteio();
+});
+
+/* =================================================================
+   EDIÇÃO DE LISTA
+   ================================================================= */
+const formEdit = document.getElementById("form-editar");
+const inputEdit = document.getElementById("input-editar");
+const listaEdit = document.getElementById("lista-editar");
+const btnSalvar = document.getElementById("btn-salvar");
+const btnVoltar = document.getElementById("btn-voltar");
+
+function renderEditar() {
+  listaEdit.innerHTML = "";
+  rascunho.forEach((prato, i) => {
+    listaEdit.appendChild(criarItem(prato, i, renderEditar));
+  });
+  btnSalvar.disabled = rascunho.length === 0;
+}
+
+formEdit.addEventListener("submit", (e) => {
+  e.preventDefault();
+  adicionarRascunho(inputEdit.value, renderEditar);
+  inputEdit.value = "";
+  inputEdit.focus();
+});
+
+btnSalvar.addEventListener("click", () => {
+  pratos = clonarLista(rascunho);
+  salvar();
+  irParaSorteio();
+});
+
+btnVoltar.addEventListener("click", () => {
+  // volta sem salvar as mudanças
+  if (pratos.length > 0) irParaSorteio();
+});
+
+btnEditar.addEventListener("click", () => {
+  rascunho = clonarLista(pratos);
+  renderEditar();
+  mostrarTela("editar");
+});
+
+/* =================================================================
+   SORTEIO
+   ================================================================= */
+const btnSortear = document.getElementById("btn-sortear");
+const roletaDisplay = document.getElementById("roleta-display");
+const contadorPratos = document.getElementById("contador-pratos");
+const notaSemana = document.getElementById("nota-semana");
+const notaUltimo = document.getElementById("nota-ultimo");
+const confete = document.getElementById("confete");
+
+let sorteando = false;
+
+/* dia de semana = segunda(1) a sexta(5). getDay(): 0=domingo, 6=sábado */
+function ehDiaUtil() {
+  const d = new Date().getDay();
+  return d >= 1 && d <= 5;
+}
+
+function ultimoSorteado() {
+  return historico.length ? historico[0].nome : null;
+}
+
+/* pratos disponíveis pro sorteio, excluindo o último jantar.
+   Se sobrar vazio (ex.: só há 1 prato), devolve todos como fallback. */
+function candidatosSemUltimo() {
+  const ultimo = (ultimoSorteado() || "").toLowerCase();
+  const filtrados = pratos.filter((p) => p.nome.toLowerCase() !== ultimo);
+  return filtrados.length ? filtrados : clonarLista(pratos);
+}
+
+/* escolhe vencedor com peso: em dia de semana, saudáveis pesam mais */
+function escolherVencedor(candidatos) {
+  const diaUtil = ehDiaUtil();
+  const pesos = candidatos.map((p) => (diaUtil && p.saudavel ? 3 : 1));
+  const total = pesos.reduce((a, b) => a + b, 0);
+  let r = Math.random() * total;
+  for (let i = 0; i < candidatos.length; i++) {
+    r -= pesos[i];
+    if (r < 0) return candidatos[i];
+  }
+  return candidatos[candidatos.length - 1];
+}
+
+function atualizarNotasSorteio() {
+  notaSemana.classList.toggle("hidden", !ehDiaUtil());
+  const ultimo = ultimoSorteado();
+  if (ultimo && pratos.length > 1) {
+    notaUltimo.textContent = `🚫 Não repete o último: ${emojiPara(ultimo)} ${ultimo}`;
+    notaUltimo.classList.remove("hidden");
+  } else {
+    notaUltimo.classList.add("hidden");
+  }
+}
+
+function irParaSorteio() {
+  mostrarTela("sorteio");
+  contadorPratos.textContent = `${pratos.length} ${pratos.length === 1 ? "prato" : "pratos"} na disputa 🍴`;
+  roletaDisplay.className = "roleta-display";
+  roletaDisplay.innerHTML = `<span class="roleta-idle">Pronto para o sorteio?</span>`;
+  btnSortear.disabled = pratos.length === 0;
+  btnSortear.textContent = "Sortear Jantar!";
+  atualizarNotasSorteio();
+}
+
+btnSortear.addEventListener("click", () => {
+  if (sorteando || pratos.length === 0) return;
+  rodarRoleta();
+});
+
+function rodarRoleta() {
+  const candidatos = candidatosSemUltimo();
+  if (candidatos.length === 1) {
+    revelarVencedor(candidatos[0]);
+    return;
+  }
+
+  sorteando = true;
+  btnSortear.disabled = true;
+  confete.classList.add("hidden");
+  roletaDisplay.className = "roleta-display roleta-girando";
+
+  const vencedor = escolherVencedor(candidatos);
+
+  // A roleta acelera e depois desacelera antes de parar no vencedor.
+  const duracaoTotal = 2600;     // ms
+  const inicio = performance.now();
+  let ultimoTroca = 0;
+  let intervalo = 60;            // ms entre trocas (cresce ao final)
+  let idx = 0;
+
+  function tick(agora) {
+    const t = agora - inicio;
+
+    if (t >= duracaoTotal) {
+      revelarVencedor(vencedor);
+      return;
+    }
+
+    // desacelera: o intervalo entre trocas aumenta conforme se aproxima do fim
+    const progresso = t / duracaoTotal;
+    intervalo = 55 + progresso * progresso * 260;
+
+    if (agora - ultimoTroca >= intervalo) {
+      pintarDisplay(candidatos[idx % candidatos.length]);
+      idx++;
+      ultimoTroca = agora;
+    }
+    requestAnimationFrame(tick);
+  }
+  requestAnimationFrame(tick);
+}
+
+function pintarDisplay(prato) {
+  roletaDisplay.innerHTML = `<div class="prato-atual">${emojiPara(prato.nome)}<br>${escaparHtml(prato.nome)}</div>`;
+}
+
+function revelarVencedor(prato) {
+  registrarHistorico(prato);
+  sorteando = false;
+  roletaDisplay.className = "roleta-display roleta-vencedor";
+  const folha = prato.saudavel ? " 🌱" : "";
+  roletaDisplay.innerHTML = `
+    <div class="prato-atual">
+      <div style="font-size:0.6em; font-weight:700; opacity:0.85; margin-bottom:6px;">Hoje é dia de...</div>
+      ${emojiPara(prato.nome)}<br>${escaparHtml(prato.nome)}${folha}
+    </div>`;
+  btnSortear.disabled = false;
+  btnSortear.textContent = "Sortear de novo! 🔄";
+  atualizarNotasSorteio(); // agora o "não repete" reflete o novo último
+  soltarConfetes();
+}
+
+/* ---------- Histórico ---------- */
+function registrarHistorico(prato) {
+  const agora = new Date().toISOString();
+  // não duplica se o último registro já é o mesmo prato
+  if (historico.length && historico[0].nome.toLowerCase() === prato.nome.toLowerCase()) {
+    historico[0].data = agora;
+  } else {
+    historico.unshift({ nome: prato.nome, saudavel: !!prato.saudavel, data: agora });
+  }
+  historico = historico.slice(0, MAX_HISTORICO);
+  salvarHistorico();
+}
+
+const listaHist = document.getElementById("lista-historico");
+const histVazio = document.getElementById("hist-vazio");
+const btnHistorico = document.getElementById("btn-historico");
+const btnVoltarHist = document.getElementById("btn-voltar-hist");
+const btnLimparHist = document.getElementById("btn-limpar-hist");
+
+function formatarData(iso) {
+  const d = new Date(iso);
+  if (isNaN(d.getTime())) return "";
+  const hoje = new Date(); hoje.setHours(0, 0, 0, 0);
+  const dia = new Date(d); dia.setHours(0, 0, 0, 0);
+  const difDias = Math.round((hoje - dia) / 86400000);
+  if (difDias === 0) return "Hoje";
+  if (difDias === 1) return "Ontem";
+  return d.toLocaleDateString("pt-BR", { weekday: "short", day: "2-digit", month: "2-digit" });
+}
+
+function renderHistorico() {
+  listaHist.innerHTML = "";
+  const vazio = historico.length === 0;
+  histVazio.classList.toggle("hidden", !vazio);
+  btnLimparHist.classList.toggle("hidden", vazio);
+
+  historico.forEach((h) => {
+    const li = document.createElement("li");
+    li.className = "item-prato item-hist";
+    const badge = h.saudavel ? `<span class="badge-saude" title="Saudável">🌱</span>` : "";
+    li.innerHTML = `
+      <span class="emoji"></span>
+      <span class="nome"></span>
+      ${badge}
+      <span class="hist-data"></span>
+    `;
+    li.querySelector(".emoji").textContent = emojiPara(h.nome);
+    li.querySelector(".nome").textContent = h.nome;
+    li.querySelector(".hist-data").textContent = formatarData(h.data);
+    listaHist.appendChild(li);
+  });
+}
+
+btnHistorico.addEventListener("click", () => {
+  renderHistorico();
+  mostrarTela("historico");
+});
+
+btnVoltarHist.addEventListener("click", () => {
+  irParaSorteio();
+});
+
+btnLimparHist.addEventListener("click", () => {
+  if (!confirm("Apagar todo o histórico de sorteios?")) return;
+  historico = [];
+  salvarHistorico();
+  renderHistorico();
+  atualizarNotasSorteio();
+});
+
+/* ---------- Confetes ---------- */
+function soltarConfetes() {
+  const emojis = ["🎉", "🎊", "✨", "🍕", "🍔", "😋", "⭐"];
+  confete.innerHTML = "";
+  confete.classList.remove("hidden");
+  for (let i = 0; i < 40; i++) {
+    const peca = document.createElement("span");
+    peca.className = "confete-peca";
+    peca.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+    peca.style.left = Math.random() * 100 + "vw";
+    peca.style.animationDuration = 1.8 + Math.random() * 1.6 + "s";
+    peca.style.animationDelay = Math.random() * 0.5 + "s";
+    peca.style.fontSize = 16 + Math.random() * 18 + "px";
+    confete.appendChild(peca);
+  }
+  setTimeout(() => confete.classList.add("hidden"), 3800);
+}
+
+/* ---------- Segurança: escapa texto pra usar em innerHTML ---------- */
+function escaparHtml(txt) {
+  const div = document.createElement("div");
+  div.textContent = txt;
+  return div.innerHTML;
+}
+
+/* =================================================================
+   BOOT
+   ================================================================= */
+function iniciar() {
+  pratos = carregar();
+  historico = carregarHistorico();
+  if (pratos.length > 0) {
+    irParaSorteio();
+  } else {
+    rascunho = [];
+    renderOnboarding();
+    mostrarTela("onboarding");
+  }
+}
+
+iniciar();
+
+  </script>
+</body>
+</html>
