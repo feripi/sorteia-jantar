@@ -87,6 +87,15 @@ body {
   font-weight: 800;
   margin: 0;
   text-shadow: 0 1px 2px rgba(0,0,0,0.15);
+  cursor: pointer;
+  user-select: none;
+}
+.logo:active { transform: scale(0.97); }
+
+.acoes-sorteio {
+  display: flex;
+  gap: 8px;
+  margin-top: 16px;
 }
 
 /* telas ocupam o espaço restante */
@@ -496,7 +505,7 @@ body {
 
     <!-- Cabeçalho -->
     <header class="topbar">
-      <h1 class="logo">🍽️ Sorteia Jantar</h1>
+      <h1 class="logo" title="Voltar à tela inicial">🍽️ Sorteia Jantar</h1>
       <button id="btn-editar" class="btn-ghost hidden">✏️ Editar</button>
     </header>
 
@@ -546,7 +555,10 @@ body {
       <p id="contador-pratos" class="contador"></p>
       <p id="nota-ultimo" class="nota-ultimo hidden"></p>
 
-      <button id="btn-historico" class="btn-ghost">📜 Ver histórico</button>
+      <div class="acoes-sorteio">
+        <button id="btn-inicio" class="btn-ghost">🏠 Início</button>
+        <button id="btn-historico" class="btn-ghost">📜 Histórico</button>
+      </div>
     </section>
 
     <!-- ======================= TELA: EDITAR LISTA ======================= -->
@@ -561,6 +573,11 @@ body {
           placeholder="Adicionar prato..." class="input" />
         <button type="submit" class="btn-add">+ Add</button>
       </form>
+
+      <div class="sugestoes-wrap">
+        <span class="sugestoes-label">Sugestões rápidas:</span>
+        <div id="sugestoes-editar" class="sugestoes"></div>
+      </div>
 
       <ul id="lista-editar" class="lista"></ul>
 
@@ -749,8 +766,10 @@ const listaOnb = document.getElementById("lista-onboarding");
 const btnComecar = document.getElementById("btn-comecar");
 const boxSugestoes = document.getElementById("sugestoes");
 
-function renderSugestoes() {
-  boxSugestoes.innerHTML = "";
+/* Renderiza os chips de sugestão num container qualquer.
+   `rerender` é a função que redesenha a tela atual após adicionar. */
+function renderSugestoes(container, rerender) {
+  container.innerHTML = "";
   SUGESTOES.forEach((s) => {
     const chip = document.createElement("button");
     chip.type = "button";
@@ -758,8 +777,8 @@ function renderSugestoes() {
     chip.textContent = `${emojiPara(s)} ${s}`;
     const jaTem = rascunho.some((p) => p.nome.toLowerCase() === s.toLowerCase());
     if (jaTem) chip.classList.add("usada");
-    chip.addEventListener("click", () => adicionarRascunho(s, renderOnboarding));
-    boxSugestoes.appendChild(chip);
+    chip.addEventListener("click", () => adicionarRascunho(s, rerender));
+    container.appendChild(chip);
   });
 }
 
@@ -769,7 +788,7 @@ function renderOnboarding() {
     listaOnb.appendChild(criarItem(prato, i, renderOnboarding));
   });
   btnComecar.disabled = rascunho.length === 0;
-  renderSugestoes();
+  renderSugestoes(boxSugestoes, renderOnboarding);
 }
 
 formOnb.addEventListener("submit", (e) => {
@@ -793,6 +812,7 @@ const inputEdit = document.getElementById("input-editar");
 const listaEdit = document.getElementById("lista-editar");
 const btnSalvar = document.getElementById("btn-salvar");
 const btnVoltar = document.getElementById("btn-voltar");
+const boxSugestoesEditar = document.getElementById("sugestoes-editar");
 
 function renderEditar() {
   listaEdit.innerHTML = "";
@@ -800,6 +820,7 @@ function renderEditar() {
     listaEdit.appendChild(criarItem(prato, i, renderEditar));
   });
   btnSalvar.disabled = rascunho.length === 0;
+  renderSugestoes(boxSugestoesEditar, renderEditar);
 }
 
 formEdit.addEventListener("submit", (e) => {
@@ -809,22 +830,42 @@ formEdit.addEventListener("submit", (e) => {
   inputEdit.focus();
 });
 
-btnSalvar.addEventListener("click", () => {
+/* Sai da edição sempre gravando (adições/exclusões viram permanentes).
+   Se a lista ficou vazia, volta para a tela inicial pra montar de novo. */
+function sairDaEdicao() {
   pratos = clonarLista(rascunho);
   salvar();
-  irParaSorteio();
-});
+  if (pratos.length === 0) {
+    rascunho = [];
+    renderOnboarding();
+    mostrarTela("onboarding");
+  } else {
+    irParaSorteio();
+  }
+}
 
-btnVoltar.addEventListener("click", () => {
-  // volta sem salvar as mudanças
-  if (pratos.length > 0) irParaSorteio();
-});
+btnSalvar.addEventListener("click", sairDaEdicao);
+btnVoltar.addEventListener("click", sairDaEdicao);
 
 btnEditar.addEventListener("click", () => {
   rascunho = clonarLista(pratos);
   renderEditar();
   mostrarTela("editar");
 });
+
+/* Voltar para a tela inicial (boas-vindas), carregando a lista atual
+   para não perder nada. Disponível pelo botão 🏠 Início e pelo título. */
+function irParaInicio() {
+  rascunho = clonarLista(pratos);
+  renderOnboarding();
+  mostrarTela("onboarding");
+}
+
+const btnInicio = document.getElementById("btn-inicio");
+btnInicio.addEventListener("click", irParaInicio);
+
+const logo = document.querySelector(".logo");
+if (logo) logo.addEventListener("click", irParaInicio);
 
 /* =================================================================
    SORTEIO
